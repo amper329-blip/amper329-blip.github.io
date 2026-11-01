@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CellScan: Can AI Spot Breast Cancer? · Curiosity &amp; Learning</title>
+<meta name="description" content="A 10-day machine learning research project: training AI models on real patient data to tell malignant from benign breast tumours, and testing whether they can be trusted.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap">
+<style>
+/* Layout: a clean exercise-book page. Narrow reading column, faint graph-paper ground on the home hero, mono labels for subjects. */
+:root{
+  --paper:#f5f7fb; --card:#ffffff; --ink:#1c2140; --ink-2:#4a5070; --muted:#7c8199;
+  --line:#dde2ee; --grid:#e6eaf3; --accent:#2f5bd3; --accent-ink:#ffffff; --accent-soft:#e7edfc;
+  --quote:#f0f3fb;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Literata", Georgia, "Times New Roman", serif;
+  --ui:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#12152a; --card:#1a1e36; --ink:#e9ecf7; --ink-2:#b8bdd4; --muted:#8a90ab;
+  --line:#2c3150; --grid:#1d2240; --accent:#7f9cf5; --accent-ink:#0f1430; --accent-soft:#232a4e;
+  --quote:#1d2240; color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --paper:#12152a; --card:#1a1e36; --ink:#e9ecf7; --ink-2:#b8bdd4; --muted:#8a90ab;
+  --line:#2c3150; --grid:#1d2240; --accent:#7f9cf5; --accent-ink:#0f1430; --accent-soft:#232a4e;
+  --quote:#1d2240; color-scheme:dark; }
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(20px, env(safe-area-inset-left, 0px));padding-right:max(20px, env(safe-area-inset-right, 0px))}
+
+/* header */
+.site-head{border-bottom:1px solid var(--line);background:var(--paper)}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+.brand span{color:var(--accent)}
+
+.site-head nav ul{list-style:none;margin:0;padding:0;display:flex;gap:6px}
+.site-head nav a{display:block;padding:8px 14px;border-radius:999px;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.98rem}
+.site-head nav a:hover{color:var(--ink);background:var(--accent-soft)}
+.site-head nav a[aria-current="page"]{color:var(--accent-ink);background:var(--accent)}
+
+.site-foot{border-top:1px solid var(--line);margin-top:72px}
+.site-foot .wrap{padding-block:28px;color:var(--muted);font-size:.9rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;letter-spacing:-.015em;color:var(--ink)}
+.crumbs{font-family:var(--mono);font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin:36px 0 0}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--accent);text-decoration:underline}
+
+/* home */
+.hero{border-bottom:0}
+.hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center;padding-block:72px 24px}
+.hero h1{font-size:clamp(2.6rem,6vw,4.4rem);line-height:1;margin:12px 0 22px;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p.lead{font-family:var(--body);font-size:1.08rem;color:var(--ink-2);max-width:60ch;margin:0 0 14px}
+.hero-art img{width:100%;border-radius:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:700;padding:12px 20px;border-radius:999px}
+.btn:hover{filter:brightness(1.08)}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:56px 0 18px}
+.section-title h2{font-size:1.5rem;margin:0}
+.section-title a{font-weight:600;font-size:.95rem;text-decoration:none}
+
+/* lists of posts */
+.post-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.post-list li{border-bottom:1px solid var(--line)}
+.post-list a{display:grid;grid-template-columns:1fr auto;gap:6px 24px;padding:22px 4px;text-decoration:none;color:inherit}
+.post-list a:hover h3{color:var(--accent)}
+.post-list h3{margin:0;font-size:1.22rem;transition:color .15s}
+.post-list p{margin:0;grid-column:1;color:var(--ink-2);font-family:var(--body);font-size:.98rem;max-width:68ch}
+.post-list .meta{grid-row:1/span 2;grid-column:2;align-self:center;font-family:var(--mono);font-size:.78rem;color:var(--muted);white-space:nowrap;text-align:right}
+.series-label{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 4px}
+
+/* blog subjects */
+.page-head h1{font-size:clamp(2.2rem,5vw,3.4rem);margin:10px 0 8px;font-weight:800}
+.page-head p{font-family:var(--body);color:var(--ink-2);margin:0;max-width:60ch}
+.subjects{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px;border-top:1px solid var(--line)}
+.subjects li{border-bottom:1px solid var(--line)}
+.subject{display:grid;grid-template-columns:1fr auto 24px;align-items:center;gap:16px;padding:20px 4px;text-decoration:none;color:var(--ink)}
+.s-name{font-family:var(--display);font-weight:600;font-size:1.2rem}
+.s-count{font-size:.9rem;color:var(--muted)}
+.s-arrow{color:var(--accent);font-weight:700;transition:transform .15s}
+a.subject:hover .s-name{color:var(--accent)}
+a.subject:hover .s-arrow{transform:translateX(4px)}
+.subject.empty .s-name{color:var(--muted);font-weight:500}
+@media (max-width:760px){.subjects{grid-template-columns:1fr}}
+
+/* article */
+.article-head{max-width:760px;margin:0 auto}
+.article-head h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:14px 0 14px;font-weight:800}
+.article-head .summary{font-family:var(--body);font-size:1.12rem;color:var(--ink-2);margin:0 0 18px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.9rem;color:var(--muted);padding-bottom:28px;border-bottom:1px solid var(--line)}
+.tag{color:var(--accent);text-decoration:none;font-weight:500}
+.tag:hover{text-decoration:underline}
+.article{max-width:760px;margin:36px auto 0;font-family:var(--body);font-size:1.06rem;line-height:1.72;color:var(--ink)}
+.article::after{content:"";display:block;clear:both}
+.article h2{font-size:1.55rem;line-height:1.2;margin:2.4em 0 .6em;padding-top:.9em;border-top:1px solid var(--line);clear:both}
+.article h2:first-child{margin-top:0;border-top:0;padding-top:0}
+.article h3{font-size:1.15rem;margin:1.6em 0 .4em}
+.article p{margin:0 0 1em}
+.article ul,.article ol{margin:0 0 1.2em;padding-left:1.3em}
+.article li{margin:.3em 0}
+.article li::marker{color:var(--accent)}
+.article strong{font-weight:700}
+.fig{margin:.4em 0 1.4em}
+.fig img{border-radius:8px;border:1px solid var(--line)}
+.fig-full{clear:both}
+.fig-full img{width:100%}
+.fig-side,.fig-side-small{float:right;margin:.3em 0 1em 28px}
+.fig-side{width:42%}
+.fig-side-small{width:32%}
+.big-q{clear:both;margin:2.4em 0;padding:28px 30px;background:var(--quote);border-radius:10px}
+.big-q p{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(1.35rem,3vw,1.8rem);line-height:1.25;color:var(--ink);text-wrap:balance}
+.big-q::before{content:"The big question";display:block;font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.equation{margin:0 0 1.2em;padding:16px 20px;border-left:3px solid var(--accent);background:var(--quote);border-radius:0 8px 8px 0;font-family:var(--mono);font-size:1rem;display:grid;gap:6px}
+.note{font-family:var(--ui);font-size:.95rem;font-weight:600;padding:12px 16px;border-radius:8px;background:var(--accent-soft);color:var(--ink)}
+.note::before{content:"⚠  ";}
+.table-wrap{overflow-x:auto;margin:0 0 1.4em;border:1px solid var(--line);border-radius:8px;clear:both}
+table{border-collapse:collapse;width:100%;font-family:var(--ui);font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--quote);font-weight:700}
+tr:last-child td{border-bottom:0}
+.more{max-width:760px;margin:64px auto 0}
+.more h2{font-size:1.25rem;margin:0 0 12px}
+.empty-state{margin-top:36px;padding:40px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);text-align:center;font-family:var(--body)}
+
+@media (max-width:760px){
+  body{font-size:16px}
+  .hero .wrap{grid-template-columns:1fr;gap:32px;padding-block:44px}
+  .hero-art{max-width:360px}
+  .fig-side,.fig-side-small{float:none;width:100%;max-width:340px;margin:.4em 0 1.2em}
+  .post-list a{grid-template-columns:1fr}
+  .post-list .meta{grid-row:auto;grid-column:1;text-align:left}
+  .site-head nav a{padding:7px 11px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li></ul></nav></div></header>
+<main><div class="wrap"><div class="article-head"><nav class="crumbs" aria-label="Breadcrumb"><a href="blog.html">Blog</a><span>/</span><a href="blog-artificial-intelligence.html">Artificial Intelligence</a></nav><h1>CellScan: Can AI Spot Breast Cancer?</h1><p class="summary">A 10-day machine learning research project: training AI models on real patient data to tell malignant from benign breast tumours, and testing whether they can be trusted.</p><div class="tags"><a class="tag" href="blog-artificial-intelligence.html">Artificial Intelligence</a><span>· 6 min read</span></div></div><article class="article"><p>Every year, doctors examine thousands of breast lumps to decide whether they are <strong>malignant</strong> (cancer) or <strong>benign</strong> (not cancer). Getting it right matters: catching cancer early saves lives, but a missed diagnosis can be fatal.</p>
+<p>This 10-day research project asks a simple question: <strong>can machine learning tell the difference, and could we trust it if it did?</strong></p>
+<p>Using real data from 569 patients, I explored how cancer cells differ from healthy ones, trained and compared four AI models, tested where they fail, and built <strong>CellScan</strong>, an interactive app that lets anyone explore the AI.</p>
+<p class="note">Educational project only. Not a medical diagnostic tool.</p>
+
+<h2>The Data</h2>
+<p>The data comes from the <strong>Wisconsin Diagnostic Breast Cancer dataset</strong>, collected at the <strong>University of Wisconsin Hospitals</strong> in the early 1990s and published by the UCI Machine Learning Repository.</p>
+<p>Doctors took cells from each patient's lump using a thin needle (a <em>fine-needle aspirate</em>), photographed them under a microscope, and a computer measured the <strong>nucleus</strong> of each cell.</p>
+<ul>
+<li><strong>569 real patients:</strong> 357 benign, 212 malignant</li>
+<li><strong>30 measurements per patient:</strong> size, texture, dents, smoothness, symmetry and more</li>
+<li>Each measurement recorded for the <strong>average</strong> cell, the <strong>variation</strong> between cells, and the <strong>worst</strong> cells</li>
+</ul>
+<p>The patients were split into <strong>455 for training</strong> (for the AI to learn from) and <strong>114 for testing</strong> (patients the AI had never seen), to check whether it had really learned rather than memorised.</p>
+<h2>First Discoveries</h2>
+<p>Before using any AI, I explored the data with graphs.</p>
+<p>Cancer nuclei were on average much <strong>bigger</strong> (average radius 17.5 vs 12.1) and around <strong>3.5× more dented</strong> than benign ones.</p>
+<figure class="fig fig-full"><img src="images/cancer-radius.png" alt="Histogram of average nucleus radius for benign and malignant patients" loading="lazy"></figure>
+
+<figure class="fig fig-full"><img src="images/cancer-concavity.png" alt="Histogram of average concavity for benign and malignant patients" loading="lazy"></figure>
+
+<p>But there was an <strong>overlap zone</strong>: some cancers had small cells, and some harmless lumps had large ones. No single measurement could separate them perfectly, but <strong>combining size and dents</strong> separated them much better.</p>
+<figure class="fig fig-full"><img src="images/cancer-scatter.png" alt="Scatter plot of nucleus radius against concavity" loading="lazy"></figure>
+
+<h2>Human vs Machine</h2>
+<p><strong>My rule:</strong> "If the nucleus radius is over 15, it's cancer." It scored <strong>86.8% accuracy</strong>.</p>
+<p><strong>The AI (Logistic Regression):</strong> trained on 455 patients using all 30 measurements. It scored <strong>93.9% accuracy</strong>.</p>
+<p>The AI won because it combined many clues at once. It caught cancers with <strong>small but irregularly shaped</strong> cells that my one-measurement rule missed.</p>
+<h2>Why Accuracy Isn't Enough</h2>
+<p>93.9% sounds impressive, but looking closer, the AI had <strong>missed 6 cancers</strong>, telling people who had cancer that they were fine. It caught only <strong>85.7%</strong> of cancers.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>What it means</th>
+<th>How serious?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Missed cancer</strong></td>
+<td>Someone with cancer is told they're fine</td>
+<td>Very dangerous: the cancer can spread</td>
+</tr>
+<tr>
+<td><strong>False alarm</strong></td>
+<td>A healthy person is told they might have cancer</td>
+<td>Stressful, but further tests would clear them</td>
+</tr>
+</tbody>
+</table></div>
+<p>From this point on, the project focused on <strong>reducing missed cancers</strong>, not just raising accuracy.</p>
+<h2>The Model Competition</h2>
+<p>Four AI models were trained and compared:</p>
+<ul>
+<li><strong>Logistic Regression:</strong> a points system, where each measurement adds or subtracts points towards cancer</li>
+<li><strong>Decision Tree:</strong> a chain of yes/no questions</li>
+<li><strong>k-Nearest Neighbours:</strong> copies the diagnosis of the most similar past patients</li>
+<li><strong>Random Forest:</strong> 100 decision trees that vote</li>
+</ul>
+<p>On a single test, Random Forest looked best. But a single test can be lucky, so all four were tested <strong>fairly</strong> using <strong>cross-validation</strong> (5 different groups of test patients, averaged).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Accuracy</th>
+<th>Cancers caught</th>
+<th>AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Logistic Regression</strong></td>
+<td><strong>98.1%</strong></td>
+<td><strong>96.2%</strong></td>
+<td><strong>0.995</strong></td>
+</tr>
+<tr>
+<td>k-Nearest Neighbours</td>
+<td>96.5%</td>
+<td>93.4%</td>
+<td>0.992</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>95.6%</td>
+<td>93.0%</td>
+<td>0.991</td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td>91.7%</td>
+<td>91.1%</td>
+<td>0.916</td>
+</tr>
+</tbody>
+</table></div>
+<p>AUC measures overall performance: 1.0 is perfect, 0.5 is random guessing.</p>
+<figure class="fig fig-full"><img src="images/cancer-roc.png" alt="ROC curve for the Random Forest model, AUC 0.993" loading="lazy"></figure>
+
+<h2>The Caution Line</h2>
+<p>The AI gives each patient a <strong>% chance of cancer</strong>. Normally, anything over <strong>50%</strong> is labelled cancer. But because missing a cancer is so dangerous, the line can be lowered to make the AI more cautious.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caution line</th>
+<th>Missed cancers</th>
+<th>False alarms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50%</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>30%</strong></td>
+<td><strong>1</strong></td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td>10%</td>
+<td>1</td>
+<td>5</td>
+</tr>
+</tbody>
+</table></div>
+<p>At <strong>30%</strong>, the best model missed just <strong>1 cancer</strong> with <strong>1 false alarm</strong> out of 114 patients. The "best" setting depends on what matters most in the real world.</p>
+<h2>What the AI Is Looking At</h2>
+<p>The models relied most on the <strong>size</strong>, <strong>dents</strong> and <strong>texture</strong> of the <strong>worst</strong> cells, and each matches real cancer biology:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why it differs in cancer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Size</strong></td>
+<td>Cancer cells often have <strong>extra chromosomes</strong> (<em>aneuploidy</em>), so the nucleus grows</td>
+</tr>
+<tr>
+<td><strong>Dents</strong></td>
+<td>Faulty <strong>lamins</strong>, the nucleus's internal scaffolding, make its outline lumpy</td>
+</tr>
+<tr>
+<td><strong>Texture</strong></td>
+<td>DNA (<em>chromatin</em>) <strong>clumps</strong> unevenly, making the nucleus look patchy</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <strong>worst</strong> cells mattered most because a few cancer cells can be hidden in an average.</p>
+<p><strong>Important ≠ causes.</strong> Large, dented nuclei are a <strong>sign</strong> of cancer, not its cause, like smoke from a fire.</p>
+<figure class="fig fig-full"><img src="images/cancer-importance.png" alt="Bar chart of the measurements Random Forest relied on most" loading="lazy"></figure>
+
+<h2>Trying to Break the AI</h2>
+<p>A good scientist tries to prove their own model wrong. These experiments revealed serious weaknesses:</p>
+<ul>
+<li><strong>Luck:</strong> across 10 random test groups, missed cancers ranged from <strong>1 to 8</strong></li>
+<li><strong>Borderline cancers:</strong> every missed cancer had cells only <em>slightly</em> abnormal, possibly early cancers, where catching them matters most</li>
+<li><strong>Confidently wrong:</strong> one real cancer patient was given only a <strong>10%</strong> chance of cancer</li>
+<li><strong>A different microscope:</strong> making measurements just <strong>10% smaller</strong> <strong>tripled</strong> the missed cancers (3 → 10)</li>
+</ul>
+<h2>Not Ready for Hospitals</h2>
+<p>Despite strong results, this AI should <strong>not</strong> be used on real patients:</p>
+<ul>
+<li>Trained on only <strong>569 patients</strong>, from <strong>one hospital</strong>, over <strong>30 years ago</strong></li>
+<li><strong>Never tested</strong> at another hospital</li>
+<li>Small differences in equipment could make it miss many more cancers</li>
+<li>Real doctors also use age, family history, scans and symptoms</li>
+</ul>
+<p><strong>What would be needed next:</strong></p>
+<ul>
+<li>Much more data from many hospitals and countries</li>
+<li>Testing on completely new patients (<em>external validation</em>)</li>
+<li>Making the model robust to different equipment</li>
+<li>AI that analyses the <strong>microscope images directly</strong></li>
+</ul>
+<h2>CellScan</h2>
+<p>CellScan brings the whole project together in one interactive app:</p>
+<ul>
+<li><strong>Measurements:</strong> set a patient's cell measurements, or load a real patient</li>
+<li><strong>Caution line:</strong> choose how cautious the AI should be</li>
+<li><strong>Trade-off and 2nd opinion:</strong> see missed cancers vs false alarms, and compare with a second AI</li>
+<li><strong>Previous patients:</strong> browse 114 real patients and see where the AI got it right or wrong</li>
+<li><strong>Why?:</strong> see which measurements pushed each decision</li>
+<li><strong>Challenge:</strong> try to beat the AI</li>
+</ul>
+<h2>Conclusion</h2>
+<p><strong>Can machine learning tell malignant from benign tumours?</strong> On this dataset, <strong>yes, very well.</strong> The best model caught about <strong>96% of cancers</strong>, using features that make real biological sense.</p>
+<p>But the most important lesson is that <strong>building an AI is the easy part. Proving it can be trusted is much harder.</strong> A high accuracy score can hide dangerous mistakes, results can depend on luck, and a model that works in one hospital might fail in another.</p>
+<p>Medical AI has huge potential, but only when it is tested carefully, honestly and on the right data.</p>
+<p><em>Data: Wisconsin Diagnostic Breast Cancer dataset (Wolberg, Street &amp; Mangasarian), UCI Machine Learning Repository. Built with Python, scikit-learn and Gradio.</em></p></article></div></main>
+<footer class="site-foot"><div class="wrap"><span>Curiosity &amp; Learning</span><span>© 2026 Aaryan Malik</span></div></footer>
+</body>
+</html>
