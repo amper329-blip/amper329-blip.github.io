@@ -177,12 +177,12 @@ tr:last-child td{border-bottom:0}
 <h2>First Discoveries</h2>
 <p>Before using any AI, I explored the data with graphs.</p>
 <p>Cancer nuclei were on average much <strong>bigger</strong> (average radius 17.5 vs 12.1) and around <strong>3.5× more dented</strong> than benign ones.</p>
-<figure class="fig fig-full"><img src="images/cancer-radius.png" alt="Histogram of average nucleus radius for benign and malignant patients" loading="lazy"></figure>
+<figure class="fig fig-full"><img src="cancer-radius.png" alt="Histogram of average nucleus radius for benign and malignant patients" loading="lazy"></figure>
 
-<figure class="fig fig-full"><img src="images/cancer-concavity.png" alt="Histogram of average concavity for benign and malignant patients" loading="lazy"></figure>
+<figure class="fig fig-full"><img src="cancer-concavity.png" alt="Histogram of average concavity for benign and malignant patients" loading="lazy"></figure>
 
 <p>But there was an <strong>overlap zone</strong>: some cancers had small cells, and some harmless lumps had large ones. No single measurement could separate them perfectly, but <strong>combining size and dents</strong> separated them much better.</p>
-<figure class="fig fig-full"><img src="images/cancer-scatter.png" alt="Scatter plot of nucleus radius against concavity" loading="lazy"></figure>
+<figure class="fig fig-full"><img src="cancer-scatter.png" alt="Scatter plot of nucleus radius against concavity" loading="lazy"></figure>
 
 <h2>Human vs Machine</h2>
 <p><strong>My rule:</strong> "If the nucleus radius is over 15, it's cancer." It scored <strong>86.8% accuracy</strong>.</p>
@@ -258,7 +258,7 @@ tr:last-child td{border-bottom:0}
 </tbody>
 </table></div>
 <p>AUC measures overall performance: 1.0 is perfect, 0.5 is random guessing.</p>
-<figure class="fig fig-full"><img src="images/cancer-roc.png" alt="ROC curve for the Random Forest model, AUC 0.993" loading="lazy"></figure>
+<figure class="fig fig-full"><img src="cancer-roc.png" alt="ROC curve for the Random Forest model, AUC 0.993" loading="lazy"></figure>
 
 <h2>The Caution Line</h2>
 <p>The AI gives each patient a <strong>% chance of cancer</strong>. Normally, anything over <strong>50%</strong> is labelled cancer. But because missing a cancer is so dangerous, the line can be lowered to make the AI more cautious.</p>
@@ -315,7 +315,7 @@ tr:last-child td{border-bottom:0}
 </table></div>
 <p>The <strong>worst</strong> cells mattered most because a few cancer cells can be hidden in an average.</p>
 <p><strong>Important ≠ causes.</strong> Large, dented nuclei are a <strong>sign</strong> of cancer, not its cause, like smoke from a fire.</p>
-<figure class="fig fig-full"><img src="images/cancer-importance.png" alt="Bar chart of the measurements Random Forest relied on most" loading="lazy"></figure>
+<figure class="fig fig-full"><img src="cancer-importance.png" alt="Bar chart of the measurements Random Forest relied on most" loading="lazy"></figure>
 
 <h2>Trying to Break the AI</h2>
 <p>A good scientist tries to prove their own model wrong. These experiments revealed serious weaknesses:</p>
