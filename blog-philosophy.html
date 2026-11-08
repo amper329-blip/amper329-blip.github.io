@@ -92,6 +92,21 @@ a.subject:hover .s-arrow{transform:translateX(4px)}
 .subject.empty .s-name{color:var(--muted);font-weight:500}
 @media (max-width:760px){.subjects{grid-template-columns:1fr}}
 
+/* projects */
+.project-list{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.project-card{display:flex;flex-direction:column;height:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.project-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.project-card img{width:100%;aspect-ratio:16/10;object-fit:contain;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+.project-card .pc-body{padding:18px 20px 22px;display:grid;gap:8px}
+.project-card h2{margin:0;font-size:1.35rem}
+.project-card p{margin:0;font-family:var(--body);color:var(--ink-2);font-size:.98rem}
+.project-card .pc-link{color:var(--accent);font-weight:600;font-size:.95rem}
+.app-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:4px 0 0}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.app-banner{max-width:760px;margin:28px auto 0;padding:22px 24px;border:1px solid var(--line);border-radius:12px;background:var(--card);display:grid;gap:8px}
+.app-banner h2{margin:0;font-size:1.25rem}
+.app-banner p{margin:0;font-family:var(--body);color:var(--ink-2)}
+
 /* article */
 .article-head{max-width:760px;margin:0 auto}
 .article-head h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:14px 0 14px;font-weight:800}
@@ -144,7 +159,7 @@ tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
-<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li></ul></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li><li><a href="projects.html">Projects</a></li></ul></nav></div></header>
 <main><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="blog.html">Blog</a><span>/</span><span>Philosophy</span></nav><div class="page-head" style="margin:14px 0 30px"><h1>Philosophy</h1><p>2 projects</p></div><ul class="post-list"><li><a href="ego.html"><div><h3>Ego</h3></div><p>What the ego is, why it becomes a problem, and what neuroscience, Hinduism, Buddhism, Christianity and Western philosophy say about it.</p><span class="meta">4 min read</span></a></li><li><a href="meaning-of-life.html"><div><h3>The Meaning of Life</h3></div><p>Is meaning discovered or created? Exploring purpose, happiness, relationships, religion and different philosophical traditions.</p><span class="meta">6 min read</span></a></li></ul></div></main>
 <footer class="site-foot"><div class="wrap"><span>Curiosity &amp; Learning</span><span>© 2026 Aaryan Malik</span></div></footer>
 </body>

@@ -92,6 +92,21 @@ a.subject:hover .s-arrow{transform:translateX(4px)}
 .subject.empty .s-name{color:var(--muted);font-weight:500}
 @media (max-width:760px){.subjects{grid-template-columns:1fr}}
 
+/* projects */
+.project-list{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.project-card{display:flex;flex-direction:column;height:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.project-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.project-card img{width:100%;aspect-ratio:16/10;object-fit:contain;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+.project-card .pc-body{padding:18px 20px 22px;display:grid;gap:8px}
+.project-card h2{margin:0;font-size:1.35rem}
+.project-card p{margin:0;font-family:var(--body);color:var(--ink-2);font-size:.98rem}
+.project-card .pc-link{color:var(--accent);font-weight:600;font-size:.95rem}
+.app-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:4px 0 0}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.app-banner{max-width:760px;margin:28px auto 0;padding:22px 24px;border:1px solid var(--line);border-radius:12px;background:var(--card);display:grid;gap:8px}
+.app-banner h2{margin:0;font-size:1.25rem}
+.app-banner p{margin:0;font-family:var(--body);color:var(--ink-2)}
+
 /* article */
 .article-head{max-width:760px;margin:0 auto}
 .article-head h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:14px 0 14px;font-weight:800}
@@ -144,8 +159,8 @@ tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
-<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li></ul></nav></div></header>
-<main><div class="wrap"><div class="article-head"><nav class="crumbs" aria-label="Breadcrumb"><a href="blog.html">Blog</a><span>/</span><a href="blog-artificial-intelligence.html">Artificial Intelligence</a></nav><h1>CellScan: Can AI Spot Breast Cancer?</h1><p class="summary">A 10-day machine learning research project: training AI models on real patient data to tell malignant from benign breast tumours, and testing whether they can be trusted.</p><div class="tags"><a class="tag" href="blog-artificial-intelligence.html">Artificial Intelligence</a><span>· 6 min read</span></div></div><article class="article"><p>Every year, doctors examine thousands of breast lumps to decide whether they are <strong>malignant</strong> (cancer) or <strong>benign</strong> (not cancer). Getting it right matters: catching cancer early saves lives, but a missed diagnosis can be fatal.</p>
+<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li><li><a href="projects.html">Projects</a></li></ul></nav></div></header>
+<main><div class="wrap"><div class="article-head"><nav class="crumbs" aria-label="Breadcrumb"><a href="blog.html">Blog</a><span>/</span><a href="blog-artificial-intelligence.html">Artificial Intelligence</a></nav><h1>CellScan: Can AI Spot Breast Cancer?</h1><p class="summary">A 10-day machine learning research project: training AI models on real patient data to tell malignant from benign breast tumours, and testing whether they can be trusted.</p><div class="tags"><a class="tag" href="blog-artificial-intelligence.html">Artificial Intelligence</a><span>· 7 min read</span></div></div><article class="article"><p>Every year, doctors examine thousands of breast lumps to decide whether they are <strong>malignant</strong> (cancer) or <strong>benign</strong> (not cancer). Getting it right matters: catching cancer early saves lives, but a missed diagnosis can be fatal.</p>
 <p>This 10-day research project asks a simple question: <strong>can machine learning tell the difference, and could we trust it if it did?</strong></p>
 <p>Using real data from 569 patients, I explored how cancer cells differ from healthy ones, trained and compared four AI models, tested where they fail, and built <strong>CellScan</strong>, an interactive app that lets anyone explore the AI.</p>
 <p class="note">Educational project only. Not a medical diagnostic tool.</p>
@@ -339,7 +354,8 @@ tr:last-child td{border-bottom:0}
 <p><strong>Can machine learning tell malignant from benign tumours?</strong> On this dataset, <strong>yes, very well.</strong> The best model caught about <strong>96% of cancers</strong>, using features that make real biological sense.</p>
 <p>But the most important lesson is that <strong>building an AI is the easy part. Proving it can be trusted is much harder.</strong> A high accuracy score can hide dangerous mistakes, results can depend on luck, and a model that works in one hospital might fail in another.</p>
 <p>Medical AI has huge potential, but only when it is tested carefully, honestly and on the right data.</p>
-<p><em>Data: Wisconsin Diagnostic Breast Cancer dataset (Wolberg, Street &amp; Mangasarian), UCI Machine Learning Repository. Built with Python, scikit-learn and Gradio.</em></p></article></div></main>
+<p><em>Data: Wisconsin Diagnostic Breast Cancer dataset (Wolberg, Street &amp; Mangasarian), UCI Machine Learning Repository. Built with Python, scikit-learn and Gradio.</em></p>
+<p>Read the day-by-day report and try the live app on the <a href="cellscan.html">CellScan project page</a>.</p></article></div></main>
 <footer class="site-foot"><div class="wrap"><span>Curiosity &amp; Learning</span><span>© 2026 Aaryan Malik</span></div></footer>
 </body>
 </html>

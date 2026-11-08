@@ -92,6 +92,21 @@ a.subject:hover .s-arrow{transform:translateX(4px)}
 .subject.empty .s-name{color:var(--muted);font-weight:500}
 @media (max-width:760px){.subjects{grid-template-columns:1fr}}
 
+/* projects */
+.project-list{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.project-card{display:flex;flex-direction:column;height:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.project-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.project-card img{width:100%;aspect-ratio:16/10;object-fit:contain;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+.project-card .pc-body{padding:18px 20px 22px;display:grid;gap:8px}
+.project-card h2{margin:0;font-size:1.35rem}
+.project-card p{margin:0;font-family:var(--body);color:var(--ink-2);font-size:.98rem}
+.project-card .pc-link{color:var(--accent);font-weight:600;font-size:.95rem}
+.app-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:4px 0 0}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.app-banner{max-width:760px;margin:28px auto 0;padding:22px 24px;border:1px solid var(--line);border-radius:12px;background:var(--card);display:grid;gap:8px}
+.app-banner h2{margin:0;font-size:1.25rem}
+.app-banner p{margin:0;font-family:var(--body);color:var(--ink-2)}
+
 /* article */
 .article-head{max-width:760px;margin:0 auto}
 .article-head h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:14px 0 14px;font-weight:800}
@@ -144,7 +159,7 @@ tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
-<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li></ul></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html" aria-current="page">Blog</a></li><li><a href="projects.html">Projects</a></li></ul></nav></div></header>
 <main><div class="wrap"><div class="article-head"><nav class="crumbs" aria-label="Breadcrumb"><a href="blog.html">Blog</a><span>/</span><a href="blog-statistics.html">Statistics</a></nav><p class="series-label" style="margin-top:22px">Statistics and Probability</p><h1>Statistics and Probability (Part 1): Thinking in Uncertainty</h1><p class="summary">Why certainty is rare, the difference between prediction and truth, and what probability really means.</p><div class="tags"><a class="tag" href="blog-statistics.html">Statistics</a><span>· 2 min read</span></div></div><article class="article"><h2>Intro: Thinking in Uncertainty</h2>
 <p>Probability is not just a mathematical subject, but a way of thinking about the world. Many real-life situations involve uncertainty, incomplete information and changing conditions. Instead of offering certainty, probability helps us reason about what is likely to happen.</p>
 <ul>

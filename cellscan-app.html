@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CellScan</title>
+<meta name="description" content="CellScan: an educational machine-learning demo that classifies breast tumour cells as benign or malignant.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f9fafb; --panel:#ffffff; --ink:#111827; --ink-2:#4b5563; --muted:#6b7280; --line:#e5e7eb;
+  --primary:#4f46e5; --primary-ink:#ffffff; --primary-soft:#eef2ff; --pink:#db2777;
+  --red:#e11d48; --green:#16a34a; --amber:#d97706;
+  --font:"Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+.container{max-width:1100px;margin:0 auto;padding:20px max(16px, env(safe-area-inset-left, 0px)) 48px}
+.topbar{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin-bottom:16px}
+.topbar a{color:var(--ink-2);text-decoration:none;font-weight:600}
+.topbar a:hover{color:var(--primary)}
+h1,h2,h3,h4{line-height:1.2;color:var(--ink)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:10px 16px;border-radius:8px;font-weight:600;font-size:.95rem;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:background .15s,border-color .15s}
+.btn:hover{background:#f3f4f6}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn.primary:hover{background:#4338ca}
+.btn.lg{padding:14px 20px;font-size:1.05rem}
+.btn.small{flex:0 0 auto}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row > .btn{flex:1 1 180px}
+.stack{display:grid;gap:16px}
+
+/* home */
+.hero{text-align:center;padding:44px 24px;border-radius:22px;background:linear-gradient(135deg,#4f46e5,#db2777);color:#fff}
+.hero h1{font-size:clamp(2.4em,7vw,3.2em);margin:0;color:#fff}
+.hero p{font-size:1.2em;margin:8px 0 0;opacity:.92}
+.stats{display:flex;gap:16px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.16);padding:14px 22px;border-radius:14px;min-width:160px}
+.stat b{display:block;font-size:1.9em}
+.warn{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}
+.steps{display:flex;gap:16px;flex-wrap:wrap}
+.step{flex:1 1 200px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;color:#111}
+.step h3{margin:0 0 6px}
+.big{font-size:2.4em;font-weight:800;line-height:1.1}
+
+/* guide */
+.guide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px clamp(16px,4vw,28px) 24px;overflow-wrap:anywhere}
+.guide h1{font-size:2rem}
+.guide h2{margin-top:1.6em}
+.guide table{border-collapse:collapse;width:100%;margin:12px 0}
+.guide th,.guide td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.guide th{background:#f3f4f6}
+.guide hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+.table-scroll{overflow-x:auto}
+
+/* explore */
+.explore-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.explore-head h1{margin:0;font-size:2rem}
+.result-card{border:2px solid;border-radius:18px;padding:18px 22px;color:#111}
+.result-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.result-label{font-size:1.9em;font-weight:800}
+.result-chance{font-size:1.2em;font-weight:600}
+.bar{position:relative;height:16px;background:#e5e7eb;border-radius:999px;margin-top:14px}
+.bar-fill{height:100%;border-radius:999px}
+.bar-line{position:absolute;top:-7px;width:3px;height:30px;background:#111;border-radius:2px;transform:translateX(-1px)}
+.bar-caption{display:flex;justify-content:space-between;font-size:.85em;margin-top:6px;color:#444}
+.explain{margin-top:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.slider-block label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px;color:var(--ink-2)}
+.slider-line{display:flex;align-items:center;gap:12px}
+.slider-line input[type=range]{flex:1;accent-color:var(--primary);min-width:0}
+.slider-line input[type=number]{width:96px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.9rem;text-align:right}
+.range-ends{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:2px}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}
+.tab{border:0;background:none;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--primary);border-bottom-color:var(--primary)}
+.tab:hover{color:var(--ink)}
+.subtabs .tab{font-size:.92rem;padding:8px 12px}
+.tabpanel{padding-top:16px}
+.measure-title{margin:18px 0 8px;font-size:1.05rem}
+.measure-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.msg{min-height:1.5em;color:var(--ink-2)}
+
+.pts-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.pts-name{width:270px;flex:0 0 auto;font-size:.95em}
+.pts-bar{height:14px;border-radius:7px;flex:0 0 auto}
+
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-group label{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-weight:500;cursor:pointer}
+.radio-group input{accent-color:var(--primary)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums;background:var(--panel)}
+table.data th,table.data td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.data th{background:#f3f4f6;position:sticky;top:0}
+.data-wrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+select{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:200px}
+.field label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px;color:var(--ink-2)}
+.md table{border-collapse:collapse;margin:8px 0;width:100%}
+.md th,.md td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.md th{background:#f3f4f6}
+.cols{display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:start}
+.footnote{margin-top:32px;font-size:.85rem;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .measure-row,.cols{grid-template-columns:1fr}
+  .pts-name{width:160px}
+  .explore-head h1{font-size:1.6rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar"><a href="cellscan.html">← Back to the CellScan project</a><a href="index.html">aaryanmalik.blog</a></div>
+
+  <!-- HOME -->
+  <section id="page-home" class="stack">
+    <div class="hero">
+      <h1>🔬 CellScan</h1>
+      <p>An AI that classifies breast tumour cells as benign or malignant</p>
+      <div class="stats">
+        <div class="stat"><b>569</b>real patients</div>
+        <div class="stat"><b>30</b>cell measurements</div>
+        <div class="stat"><b>98%</b>accuracy (cross-validated)</div>
+      </div>
+    </div>
+    <div class="warn">⚠️ EDUCATIONAL MACHINE-LEARNING DEMONSTRATION — NOT A MEDICAL DIAGNOSTIC TOOL</div>
+    <div class="row">
+      <button class="btn primary lg" id="start-btn">▶ Start exploring</button>
+      <button class="btn lg" id="guide-btn">📖 How CellScan works</button>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>1️⃣ Measure</h3>Set the size, texture, dents and shape of the cell nuclei, or load a real patient.</div>
+      <div class="step"><h3>2️⃣ Predict</h3>The AI turns all 30 measurements into a % chance of cancer.</div>
+      <div class="step"><h3>3️⃣ Decide</h3>The caution line decides whether that % counts as malignant or benign.</div>
+    </div>
+  </section>
+
+  <!-- GUIDE -->
+  <section id="page-guide" class="stack" hidden>
+    <div><button class="btn small" data-go="home">← Back to home</button></div>
+    <div class="guide"><h1>📖 How CellScan works</h1>
+<p>CellScan is an <strong>educational demonstration</strong>. It shows how machine learning can classify breast tumour cells as <strong>benign</strong> (not cancer) or <strong>malignant</strong> (cancer). It must <strong>never</strong> be used to diagnose real patients.</p>
+<hr />
+<h2>🚀 Quick start</h2>
+<ol>
+<li>Press <strong>▶ Start exploring</strong>.</li>
+<li>In <strong>📏 Measurements</strong>, press <strong>🔴 Random cancer patient</strong> to load a real patient.</li>
+<li>Look at the <strong>result card</strong> at the top: CellScan's verdict and its % chance of cancer.</li>
+<li>Move the <strong>caution line</strong> (just under the result card) and see when the verdict flips.</li>
+<li>Explore the other tabs to see <strong>why</strong> it decided, how it did on <strong>real past patients</strong>, and whether <strong>you</strong> can beat it.</li>
+</ol>
+<hr />
+<h2>🟥 The result card (top of the screen)</h2>
+<p>This shows CellScan's answer for <strong>the patient currently set up in the 📏 Measurements tab</strong>.
+- <strong>MALIGNANT / BENIGN:</strong> CellScan's decision.
+- <strong>% chance of cancer:</strong> how sure the main model (Logistic Regression) is that this patient has cancer.
+- <strong>The coloured bar:</strong> the same % drawn as a bar. A longer bar means more likely cancer.
+- <strong>The black marker ▲:</strong> where your <strong>caution line</strong> is.
+- <strong>The sentence underneath:</strong> explains the decision, e.g. <em>"The chance of cancer (35%) is above your 30% caution line, so CellScan says MALIGNANT."</em></p>
+<p><strong>Simple rule:</strong> if the coloured bar goes <strong>past</strong> the black marker, the verdict is <strong>malignant</strong>.</p>
+<hr />
+<h2>🎛️ The caution line (under the result card)</h2>
+<p>Think of it like an <strong>exam pass mark</strong>. Your score (the % chance of cancer) stays the same. The caution line is the <strong>pass mark</strong> for calling something cancer.</p>
+<p>CellScan does <strong>two separate things</strong> for every patient:
+1. <strong>Works out a % chance of cancer.</strong> The caution line does <strong>not</strong> change this.
+2. <strong>Decides</strong> whether that % is high enough to call it cancer. <strong>This</strong> is what the caution line controls.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Caution line</th>
+<th>A patient with a 35% chance is called…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50%</td>
+<td>🟢 Benign (35 is not above 50)</td>
+</tr>
+<tr>
+<td>30%</td>
+<td>🔴 Malignant (35 is above 30)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>What it changes in the app:</strong></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Where</th>
+<th>What changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Result card</td>
+<td>The black marker moves, and the verdict can flip</td>
+</tr>
+<tr>
+<td>⚖️ Trade-off</td>
+<td>The missed cancers and false alarms numbers</td>
+</tr>
+<tr>
+<td>🌲 2nd opinion</td>
+<td>Random Forest's verdict can flip</td>
+</tr>
+<tr>
+<td>📜 Previous Patients</td>
+<td>"CellScan said", ✅/❌, and the score out of 114</td>
+</tr>
+<tr>
+<td>🎮 Challenge</td>
+<td>The AI's guess for each mystery patient</td>
+</tr>
+<tr>
+<td>📏 Measurements and 🔍 Why?</td>
+<td>Nothing</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why it starts at 30%:</strong> missing a cancer is much more dangerous than a false alarm. In testing, a 30% line gave the best balance: <strong>1 missed cancer and 1 false alarm</strong> out of 114 test patients.</p>
+<hr />
+<h2>🧭 The tabs</h2>
+<p>Every tab has a <strong>← Back</strong> button (returns to the tab you were on before, or Home) and a <strong>↺ Reset</strong> button.</p>
+<h3>📏 Measurements</h3>
+<p>Set up a patient using <strong>30 sliders</strong>, grouped into 4 sub-tabs: <strong>📐 Size, 🌫️ Texture, 🕳️ Dents, 🔷 Shape</strong>.
+Each measurement has <strong>3 sliders</strong>:
+- <strong>average cell:</strong> the typical cell in the sample
+- <strong>variation:</strong> how different the cells are from each other
+- <strong>worst cell:</strong> the most extreme cells (often the best clue for cancer)</p>
+<p>Buttons:
+- <strong>🟢 Random benign patient / 🔴 Random cancer patient:</strong> loads a <strong>real</strong> patient's 30 measurements.
+- <strong>↺ Reset to average:</strong> sets every slider back to the average patient.</p>
+<h3>⚖️ Trade-off &amp; 2nd Opinion</h3>
+<ul>
+<li><strong>The two big numbers</strong> show what your caution line would do on 114 real test patients: how many <strong>cancers it would miss</strong> and how many <strong>false alarms</strong> it would give.</li>
+<li><strong>🌲 Get a 2nd opinion:</strong> asks a <strong>second model</strong> (Random Forest) about the same patient. If the two models <strong>disagree</strong>, the patient is probably a borderline case. Once shown, it updates automatically.</li>
+<li><strong>↺ Reset:</strong> caution line back to 30%, and hides the 2nd opinion.</li>
+</ul>
+<h3>📜 Previous Patients</h3>
+<p>A table of <strong>114 real past patients</strong> that CellScan <strong>never trained on</strong>, with their <strong>real diagnosis</strong>, what CellScan said, and whether it was right.
+- <strong>Show:</strong> filter to All / Cancer only / Benign only / <strong>Mistakes only</strong>.
+- <strong>Choose a patient # → 📂 Load into CellScan:</strong> puts that patient's measurements into the sliders and takes you to 📏 Measurements.
+- <strong>↺ Reset:</strong> back to all patients.</p>
+<h3>🔍 Why?</h3>
+<p>Shows <strong>which measurements pushed the decision</strong> for the current patient.
+- 🔴 <strong>Red bars</strong> push towards malignant, 🟢 <strong>green bars</strong> push towards benign.
+- <strong>Longer bars push harder.</strong> The numbers are the model's "points".
+- <strong>↺ Reset:</strong> sets the patient back to average.</p>
+<h3>🎮 Challenge</h3>
+<p><strong>Can you beat the AI?</strong>
+1. Press <strong>🧪 New patient</strong> to see a real mystery patient's key measurements, next to the average benign and cancer patient.
+2. Press <strong>🟢 I think BENIGN</strong> or <strong>🔴 I think MALIGNANT</strong>.
+3. See what <strong>you</strong> said, what the <strong>AI</strong> said (using your caution line), and the <strong>truth</strong>.
+- <strong>↺ Reset:</strong> score back to 0–0.</p>
+<hr />
+<h2>📊 The data</h2>
+<ul>
+<li><strong>Source:</strong> the <em>Wisconsin Diagnostic Breast Cancer</em> dataset, UCI Machine Learning Repository.</li>
+<li><strong>Who collected it:</strong> Dr William Wolberg (surgeon), with W. Nick Street and Olvi Mangasarian, University of Wisconsin Hospitals, USA, early 1990s.</li>
+<li><strong>How:</strong> cells were taken from each lump with a thin needle (<em>fine-needle aspirate</em>), stained, and photographed under a microscope. A computer traced each nucleus and measured it.</li>
+<li><strong>Size:</strong> 569 patients (357 benign, 212 malignant), each diagnosis confirmed by doctors.</li>
+<li><strong>Measurements:</strong> 10 properties × 3 versions (average, variation, worst) = <strong>30 per patient</strong>.</li>
+</ul>
+<hr />
+<h2>🤖 The models</h2>
+<p><strong>Main model: Logistic Regression (a points system).</strong> The measurements are <strong>scaled</strong> so they're comparable. Each one earns <strong>points</strong> (positive = towards cancer). The points are added up and turned into a <strong>% chance of cancer</strong>. It learned the point values from <strong>455 patients</strong>.</p>
+<p><strong>2nd opinion: Random Forest (a vote).</strong> <strong>100 decision trees</strong> each ask yes/no questions about the measurements and <strong>vote</strong>. The % is the share voting "cancer".</p>
+<hr />
+<h2>🧪 How it was tested</h2>
+<p>Tested on <strong>114 unseen patients</strong>, then with <strong>5-fold cross-validation</strong> (5 different test groups, averaged) so results don't depend on luck.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Accuracy</th>
+<th>Cancers caught</th>
+<th>AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Logistic Regression</strong></td>
+<td><strong>98.1%</strong></td>
+<td><strong>96.2%</strong></td>
+<td><strong>0.995</strong></td>
+</tr>
+<tr>
+<td>k-Nearest Neighbours</td>
+<td>96.5%</td>
+<td>93.4%</td>
+<td>0.992</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>95.6%</td>
+<td>93.0%</td>
+<td>0.991</td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td>91.7%</td>
+<td>91.1%</td>
+<td>0.916</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>🧬 The biology</h2>
+<ul>
+<li><strong>Size:</strong> cancer cells often have <strong>extra chromosomes</strong> (<em>aneuploidy</em>), so the nucleus grows.</li>
+<li><strong>Dents:</strong> faulty <strong>lamins</strong> (nuclear scaffolding) make the outline lumpy.</li>
+<li><strong>Texture:</strong> DNA (<em>chromatin</em>) <strong>clumps</strong> unevenly, so the nucleus looks patchy.</li>
+</ul>
+<p>⚠️ <strong>Important ≠ causes.</strong> These are <strong>signs</strong> of cancer, not causes.</p>
+<hr />
+<h2>🚫 Why this must NOT be used on real patients</h2>
+<ul>
+<li>Only <strong>569 patients</strong>, from <strong>one hospital</strong>, over <strong>30 years ago</strong>.</li>
+<li>On different random test groups, missed cancers ranged from <strong>1 to 8</strong>.</li>
+<li>A microscope measuring cells just <strong>10% smaller</strong> <strong>tripled</strong> missed cancers.</li>
+<li>It mostly fails on <strong>borderline</strong> cancers, possibly early ones.</li>
+<li>It once gave a real cancer patient only a <strong>10%</strong> chance.</li>
+<li><strong>Never tested at another hospital.</strong></li>
+<li>Real doctors also use age, history, scans and symptoms.</li>
+</ul></div>
+    <div><button class="btn" data-go="home">← Back to home</button></div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section id="page-explore" class="stack" hidden>
+    <div class="explore-head"><h1>🔬 CellScan</h1><button class="btn small" data-go="home">🏠 Home</button></div>
+    <div class="warn">⚠️ EDUCATIONAL MACHINE-LEARNING DEMONSTRATION — NOT A MEDICAL DIAGNOSTIC TOOL</div>
+    <div id="result"></div>
+    <div class="panel slider-block">
+      <label for="line">🎛️ Caution line (%): lower = catches more cancers, but more false alarms</label>
+      <div class="slider-line"><input type="range" id="line" min="10" max="50" step="5" value="30"><input type="number" id="line-num" min="10" max="50" step="5" value="30" aria-label="Caution line value"></div>
+      <div class="range-ends"><span>10</span><span>50</span></div>
+    </div>
+
+    <div class="tabs" role="tablist" id="main-tabs">
+      <button class="tab" role="tab" data-tab="measure" aria-selected="true">📏 Measurements</button>
+      <button class="tab" role="tab" data-tab="tradeoff" aria-selected="false">⚖️ Trade-off &amp; 2nd Opinion</button>
+      <button class="tab" role="tab" data-tab="past" aria-selected="false">📜 Previous Patients</button>
+      <button class="tab" role="tab" data-tab="why" aria-selected="false">🔍 Why?</button>
+      <button class="tab" role="tab" data-tab="challenge" aria-selected="false">🎮 Challenge</button>
+    </div>
+
+    <div class="tabpanel" id="tab-measure">
+      <div class="row">
+        <button class="btn small back">← Back</button>
+        <button class="btn" id="benign-btn">🟢 Random benign patient</button>
+        <button class="btn" id="cancer-btn">🔴 Random cancer patient</button>
+        <button class="btn" id="reset-measure">↺ Reset to average</button>
+      </div>
+      <p class="msg" id="loaded-msg"></p>
+      <div class="tabs subtabs" role="tablist" id="sub-tabs"></div>
+      <div id="sub-panels"></div>
+    </div>
+
+    <div class="tabpanel" id="tab-tradeoff" hidden>
+      <div class="row"><button class="btn small back">← Back</button><button class="btn" id="reset-tradeoff">↺ Reset caution line to 30%</button></div>
+      <div id="dial-box" style="margin-top:16px"></div>
+      <div style="margin-top:16px"><button class="btn primary" id="second-btn" style="width:100%">🌲 Get a 2nd opinion (Random Forest)</button></div>
+      <div id="second-box" style="margin-top:16px"></div>
+    </div>
+
+    <div class="tabpanel" id="tab-past" hidden>
+      <div class="row"><button class="btn small back">← Back</button><button class="btn" id="reset-past">↺ Reset filter</button></div>
+      <h3>Real past patients and their diagnoses</h3>
+      <p>These are <b>114 real patients</b> CellScan <b>never trained on</b>. See how CellScan did on each one, and load any patient to explore their measurements.</p>
+      <div class="field"><label>Show</label>
+        <div class="radio-group" id="filter">
+          <label><input type="radio" name="filter" value="All patients" checked> All patients</label>
+          <label><input type="radio" name="filter" value="Cancer only"> Cancer only</label>
+          <label><input type="radio" name="filter" value="Benign only"> Benign only</label>
+          <label><input type="radio" name="filter" value="Mistakes only"> Mistakes only</label>
+        </div>
+      </div>
+      <p id="past-summary"></p>
+      <div class="data-wrap"><table class="data" id="past-table"></table></div>
+      <div class="row" style="margin-top:16px;align-items:flex-end">
+        <div class="field" style="flex:1 1 220px"><label for="past-select">Choose a patient #</label><select id="past-select"><option value="">Select…</option></select></div>
+        <button class="btn primary" id="load-past" style="flex:1 1 220px">📂 Load into CellScan</button>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tab-why" hidden>
+      <div class="row"><button class="btn small back">← Back</button><button class="btn" id="reset-why">↺ Reset patient to average</button></div>
+      <div id="why-box"></div>
+    </div>
+
+    <div class="tabpanel" id="tab-challenge" hidden>
+      <div class="row"><button class="btn small back">← Back</button><button class="btn" id="reset-challenge">↺ Reset score</button></div>
+      <h3>Can you beat the AI?</h3>
+      <p>You'll see a real patient's key measurements, next to the average benign and cancer patient. Guess, then see what the AI said (using your caution line) and the truth.</p>
+      <div class="cols">
+        <div class="stack">
+          <button class="btn primary lg" id="new-btn">🧪 New patient</button>
+          <div class="md" id="patient-box"></div>
+        </div>
+        <div class="stack">
+          <button class="btn lg" id="guess-b">🟢 I think BENIGN</button>
+          <button class="btn lg" id="guess-m">🔴 I think MALIGNANT</button>
+          <div class="md" id="guess-result"></div>
+          <div class="md" id="score-box"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote">Built by Aaryan Malik as part of a 10-day machine learning research project. Data: Wisconsin Diagnostic Breast Cancer dataset (UCI Machine Learning Repository).</p>
+</div>
+
+<script src="cellscan-data.js"></script>
+<script>
+(function () {
+  const D = window.CELLSCAN_DATA;
+  const COLS = D.columns;
+  const N = COLS.length;
+  const idx = Object.fromEntries(COLS.map((c, i) => [c, i]));
+  const RED = "#e11d48", GREEN = "#16a34a", DEFAULT_LINE = 30;
+
+  const groups = [
+    ["📐 Size", ["radius", "perimeter", "area"]],
+    ["🌫️ Texture", ["texture"]],
+    ["🕳️ Dents", ["concave_points", "concavity"]],
+    ["🔷 Shape", ["compactness", "smoothness", "symmetry", "fractal_dimension"]],
+  ];
+  const versions = [["1", "average cell"], ["2", "variation"], ["3", "worst cell"]];
+  const nice = {radius:"radius", perimeter:"perimeter", area:"area", texture:"texture", concave_points:"concave points",
+    concavity:"concavity", compactness:"compactness", smoothness:"smoothness", symmetry:"symmetry", fractal_dimension:"outline complexity"};
+  const versionNames = {"1":"average cell", "2":"variation", "3":"worst cell"};
+  const niceName = c => nice[c.slice(0, -1)] + " (" + versionNames[c.slice(-1)] + ")";
+  const keyFeatures = ["radius3", "area3", "concave_points3", "concavity3", "texture3", "smoothness3"];
+  const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+  // sensible rounding: big ranges → 2 d.p., small → 3 d.p., tiny → 4 d.p.
+  const decimals = {};
+  COLS.forEach(c => { const s = D.stats[c]; const span = s.max - s.min; decimals[c] = span > 1 ? 2 : span > 0.1 ? 3 : 4; });
+  const roundTo = (v, d) => Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+
+  // ---------- models ----------
+  function lrChance(x) {
+    let z = D.lr.intercept;
+    for (let i = 0; i < N; i++) z += D.lr.coef[i] * (x[i] - D.scaler.mean[i]) / D.scaler.scale[i];
+    return 100 / (1 + Math.exp(-z));
+  }
+  function lrPoints(x) {
+    return COLS.map((c, i) => D.lr.coef[i] * (x[i] - D.scaler.mean[i]) / D.scaler.scale[i]);
+  }
+  const f32 = new Float32Array(1);
+  const asF32 = v => { f32[0] = v; return f32[0]; };
+  function rfChance(x) {
+    const xf = x.map(asF32);
+    let sum = 0;
+    for (const t of D.rf) {
+      let n = 0;
+      while (t.l[n] !== -1) n = xf[t.f[n]] <= t.t[n] ? t.l[n] : t.r[n];
+      sum += t.p[n];
+    }
+    return sum / D.rf.length * 100;
+  }
+  const testChances = D.test.rows.map(lrChance);
+
+  // ---------- helpers ----------
+  function chanceText(c) {
+    if (c < 1) return "less than 1%";
+    if (c > 99) return "more than 99%";
+    return (Math.round(c * 10) / 10) + "%";
+  }
+  function resultCard(chance, line, title, explain) {
+    const mal = chance > line, colour = mal ? RED : GREEN, bg = mal ? "#fff1f2" : "#f0fdf4";
+    const width = Math.max(1, Math.min(100, chance));
+    let h = '<div class="result-card" style="border-color:' + colour + ';background:' + bg + '">';
+    if (title) h += '<div style="font-weight:700;margin-bottom:6px">' + title + '</div>';
+    h += '<div class="result-top"><span class="result-label" style="color:' + colour + '">' + (mal ? "🔴 MALIGNANT" : "🟢 BENIGN") + '</span>' +
+         '<span class="result-chance">' + chanceText(chance) + ' chance of cancer</span></div>' +
+         '<div class="bar"><div class="bar-fill" style="width:' + width + '%;background:' + colour + '"></div><div class="bar-line" style="left:' + line + '%"></div></div>' +
+         '<div class="bar-caption"><span>0%</span><span>▲ caution line: ' + line + '%</span><span>100%</span></div>';
+    if (explain) h += '<div class="explain">The chance of cancer (<b>' + chanceText(chance) + '</b>) is <b>' + (mal ? "above" : "not above") +
+         '</b> your <b>' + line + '%</b> caution line, so CellScan says <b>' + (mal ? "MALIGNANT" : "BENIGN") + '</b>.</div>';
+    return h + '</div>';
+  }
+  function mdTable(rows) {
+    return '<table><thead><tr>' + rows[0].map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>' +
+      rows.slice(1).map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+  }
+
+  // ---------- state ----------
+  const $ = id => document.getElementById(id);
+  const values = new Array(N);
+  const inputs = {};          // column -> {range, num}
+  let line = DEFAULT_LINE, showSecond = false, tabHistory = ["measure"];
+  let game = {index: null, you: 0, ai: 0, rounds: 0};
+
+  // ---------- pages ----------
+  function show(page) {
+    ["home", "guide", "explore"].forEach(p => $("page-" + p).hidden = p !== page);
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
+  $("guide-btn").addEventListener("click", () => show("guide"));
+  $("start-btn").addEventListener("click", () => { show("explore"); tabHistory = ["measure"]; selectTab("measure", false); });
+
+  // ---------- main tabs + back ----------
+  function selectTab(name, remember = true) {
+    document.querySelectorAll("#main-tabs .tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === name ? "true" : "false"));
+    ["measure", "tradeoff", "past", "why", "challenge"].forEach(t => $("tab-" + t).hidden = t !== name);
+    if (remember) tabHistory = tabHistory.concat([name]).slice(-30);
+  }
+  document.querySelectorAll("#main-tabs .tab").forEach(t => t.addEventListener("click", () => selectTab(t.dataset.tab)));
+  document.querySelectorAll(".back").forEach(b => b.addEventListener("click", () => {
+    if (tabHistory.length <= 1) { tabHistory = ["measure"]; show("home"); return; }
+    tabHistory = tabHistory.slice(0, -1);
+    selectTab(tabHistory[tabHistory.length - 1], false);
+  }));
+
+  // ---------- sliders ----------
+  const subTabs = $("sub-tabs"), subPanels = $("sub-panels");
+  groups.forEach(([name, measures], gi) => {
+    const tab = document.createElement("button");
+    tab.className = "tab"; tab.setAttribute("role", "tab"); tab.textContent = name;
+    tab.setAttribute("aria-selected", gi === 0 ? "true" : "false");
+    subTabs.appendChild(tab);
+    const panel = document.createElement("div");
+    panel.hidden = gi !== 0;
+    measures.forEach(m => {
+      const h = document.createElement("h4"); h.className = "measure-title";
+      h.textContent = nice[m].charAt(0).toUpperCase() + nice[m].slice(1);
+      panel.appendChild(h);
+      const row = document.createElement("div"); row.className = "measure-row";
+      versions.forEach(([num, meaning]) => {
+        const c = m + num, s = D.stats[c], d = decimals[c], p = Math.pow(10, d);
+        const lo = Math.floor(s.min * p) / p, hi = Math.ceil(s.max * p) / p, step = 1 / p;
+        const start = roundTo(s.mean, d);
+        const block = document.createElement("div"); block.className = "panel slider-block";
+        block.innerHTML = '<label for="s-' + c + '">' + meaning + '</label><div class="slider-line">' +
+          '<input type="range" id="s-' + c + '" min="' + lo + '" max="' + hi + '" step="' + step + '" value="' + start + '">' +
+          '<input type="number" min="' + lo + '" max="' + hi + '" step="' + step + '" value="' + start + '" aria-label="' + esc(niceName(c)) + ' value"></div>' +
+          '<div class="range-ends"><span>' + lo + '</span><span>' + hi + '</span></div>';
+        const range = block.querySelector('input[type=range]'), numIn = block.querySelector('input[type=number]');
+        range.addEventListener("input", () => { numIn.value = range.value; values[idx[c]] = +range.value; update(); });
+        numIn.addEventListener("change", () => {
+          let v = +numIn.value; if (isNaN(v)) v = start; v = Math.min(hi, Math.max(lo, v));
+          numIn.value = v; range.value = v; values[idx[c]] = v; update();
+        });
+        inputs[c] = {range, num: numIn};
+        values[idx[c]] = start;
+        row.appendChild(block);
+      });
+      panel.appendChild(row);
+    });
+    subPanels.appendChild(panel);
+    tab.addEventListener("click", () => {
+      [...subTabs.children].forEach((t, i) => t.setAttribute("aria-selected", i === gi ? "true" : "false"));
+      [...subPanels.children].forEach((pn, i) => pn.hidden = i !== gi);
+    });
+  });
+  function setValues(row) {
+    COLS.forEach((c, i) => {
+      const v = roundTo(row[i], decimals[c]);
+      values[i] = v; inputs[c].range.value = v; inputs[c].num.value = v;
+    });
+    update();
+  }
+  const averageRow = COLS.map(c => D.stats[c].mean);
+
+  // ---------- caution line ----------
+  function setLine(v) {
+    line = Math.min(50, Math.max(10, Math.round(v / 5) * 5));
+    $("line").value = line; $("line-num").value = line;
+    update(); dialEffect(); pastView();
+  }
+  $("line").addEventListener("input", () => setLine(+$("line").value));
+  $("line-num").addEventListener("change", () => setLine(+$("line-num").value));
+
+  // ---------- main result + why + 2nd opinion ----------
+  function secondHtml(lrC, rfC) {
+    let h = resultCard(rfC, line, "🌲 Random Forest (2nd opinion)");
+    if ((lrC > line) !== (rfC > line)) h += '<div class="warn" style="margin-top:10px">⚠️ The two models DISAGREE. This is a borderline case.</div>';
+    else h += "<p style='margin-top:10px'><b>✅ Both models agree.</b></p>";
+    return h;
+  }
+  function update() {
+    const lrC = lrChance(values);
+    $("result").innerHTML = resultCard(lrC, line, "", true);
+    const pts = lrPoints(values).map((p, i) => [COLS[i], p]);
+    const up = pts.filter(p => p[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const down = pts.filter(p => p[1] < 0).sort((a, b) => a[1] - b[1]).slice(0, 5);
+    const biggest = Math.max(0.01, ...pts.map(p => Math.abs(p[1])));
+    const row = (c, p, col) => '<div class="pts-row"><span class="pts-name">' + niceName(c) + '</span>' +
+      '<div class="pts-bar" style="width:' + Math.round(Math.abs(p) / biggest * 320) + 'px;max-width:40vw;background:' + col + '"></div>' +
+      '<b>' + (p > 0 ? "+" : "") + (Math.round(p * 100) / 100) + '</b></div>';
+    $("why-box").innerHTML = "<h3>🔴 Pushing towards MALIGNANT</h3>" + up.map(p => row(p[0], p[1], RED)).join("") +
+      "<h3>🟢 Pushing towards BENIGN</h3>" + down.map(p => row(p[0], p[1], GREEN)).join("") +
+      "<p><i>Logistic Regression is a points system. Each measurement gets points depending on how far it is from average and how much the model cares about it. Longer bars push harder.</i></p>";
+    if (showSecond) $("second-box").innerHTML = secondHtml(lrC, rfChance(values));
+  }
+  $("second-btn").addEventListener("click", () => { showSecond = true; $("second-box").innerHTML = secondHtml(lrChance(values), rfChance(values)); });
+
+  // ---------- trade-off ----------
+  function dialEffect() {
+    let missed = 0, fa = 0;
+    testChances.forEach((c, i) => { const g = c > line ? "M" : "B", t = D.test.truth[i]; if (g === "B" && t === "M") missed++; if (g === "M" && t === "B") fa++; });
+    $("dial-box").innerHTML = "<p>With your <b>" + line + "%</b> caution line, here's what CellScan would do on our <b>114 test patients</b>:</p>" +
+      '<div class="steps"><div class="step"><div class="big" style="color:' + RED + '">' + missed + '</div>❌ missed cancers<br><small>cancer patients told "benign" (out of 42)</small></div>' +
+      '<div class="step"><div class="big" style="color:#d97706">' + fa + '</div>⚠️ false alarms<br><small>healthy patients told "malignant" (out of 72)</small></div></div>' +
+      "<p><i>Move the caution line at the top and watch these numbers change. Lower line = fewer missed cancers but more false alarms. Higher line = the opposite.</i></p>";
+  }
+  $("reset-tradeoff").addEventListener("click", () => { showSecond = false; $("second-box").innerHTML = ""; setLine(DEFAULT_LINE); });
+
+  // ---------- example patients + resets ----------
+  function loadPatient(kind) {
+    const pool = D.test.ids.map((id, i) => i).filter(i => D.test.truth[i] === kind);
+    const i = pool[Math.floor(Math.random() * pool.length)];
+    setValues(D.test.rows[i]);
+    $("loaded-msg").innerHTML = "Loaded real test patient <b>#" + D.test.ids[i] + "</b>, who was really <b>" + (kind === "M" ? "MALIGNANT" : "BENIGN") + "</b>.";
+  }
+  function resetPatient() { setValues(averageRow); $("loaded-msg").textContent = "↺ Reset to the average patient."; }
+  $("benign-btn").addEventListener("click", () => loadPatient("B"));
+  $("cancer-btn").addEventListener("click", () => loadPatient("M"));
+  $("reset-measure").addEventListener("click", resetPatient);
+  $("reset-why").addEventListener("click", resetPatient);
+
+  // ---------- previous patients ----------
+  const order = D.test.ids.map((id, i) => i);
+  function pastView() {
+    const which = document.querySelector('input[name=filter]:checked').value;
+    let correct = 0;
+    const rows = order.map(i => {
+      const said = testChances[i] > line ? "M" : "B", truth = D.test.truth[i];
+      if (said === truth) correct++;
+      return {i, said, truth};
+    }).filter(r => which === "Cancer only" ? r.truth === "M" : which === "Benign only" ? r.truth === "B" : which === "Mistakes only" ? r.said !== r.truth : true);
+    const r = D.test.rows;
+    $("past-table").innerHTML = "<thead><tr><th>Patient #</th><th>Real diagnosis</th><th>CellScan chance</th><th>CellScan said</th><th>Correct?</th><th>Size (worst radius)</th><th>Dents (worst concave points)</th><th>Texture (worst)</th></tr></thead><tbody>" +
+      rows.map(o => "<tr><td>" + D.test.ids[o.i] + "</td><td>" + (o.truth === "M" ? "🔴 Malignant" : "🟢 Benign") + "</td><td>" + chanceText(testChances[o.i]) +
+        "</td><td>" + (o.said === "M" ? "🔴 Malignant" : "🟢 Benign") + "</td><td>" + (o.said === o.truth ? "✅" : "❌") + "</td><td>" +
+        r[o.i][idx.radius3].toFixed(2) + "</td><td>" + r[o.i][idx.concave_points3].toFixed(3) + "</td><td>" + r[o.i][idx.texture3].toFixed(2) + "</td></tr>").join("") + "</tbody>";
+    $("past-summary").innerHTML = "Showing <b>" + rows.length + "</b> of 114 real past patients. With your <b>" + line + "%</b> caution line, CellScan got <b>" + correct + "/114</b> right.";
+  }
+  document.querySelectorAll('input[name=filter]').forEach(r => r.addEventListener("change", pastView));
+  [...D.test.ids].map((id, i) => [id, i]).sort((a, b) => a[0] - b[0]).forEach(([id]) => {
+    const o = document.createElement("option"); o.value = id; o.textContent = id; $("past-select").appendChild(o);
+  });
+  $("load-past").addEventListener("click", () => {
+    const v = $("past-select").value;
+    if (!v) { $("loaded-msg").textContent = "⚠️ Choose a patient number first."; selectTab("measure"); return; }
+    const i = D.test.ids.indexOf(+v);
+    setValues(D.test.rows[i]);
+    $("loaded-msg").innerHTML = "Loaded past patient <b>#" + v + "</b>, whose real diagnosis was <b>" + (D.test.truth[i] === "M" ? "MALIGNANT" : "BENIGN") + "</b>.";
+    selectTab("measure");
+  });
+  $("reset-past").addEventListener("click", () => { document.querySelector('input[name=filter][value="All patients"]').checked = true; $("past-select").value = ""; pastView(); });
+
+  // ---------- challenge ----------
+  const scoreText = s => "<h3>🏆 Score after " + s.rounds + " rounds</h3><p>🧑 You: <b>" + s.you + "</b> &nbsp; vs &nbsp; 🤖 AI: <b>" + s.ai + "</b></p>";
+  $("score-box").innerHTML = scoreText(game);
+  $("new-btn").addEventListener("click", () => {
+    const i = Math.floor(Math.random() * D.test.ids.length);
+    game.index = i;
+    const rows = [["Measurement", "This patient", "Average benign", "Average cancer"]].concat(keyFeatures.map(c => {
+      const d = decimals[c];
+      return [niceName(c), "<b>" + roundTo(D.test.rows[i][idx[c]], d) + "</b>", roundTo(D.stats[c].benign, d), roundTo(D.stats[c].cancer, d)];
+    }));
+    $("patient-box").innerHTML = "<h3>🧪 Mystery patient #" + D.test.ids[i] + "</h3><div class='table-scroll'>" + mdTable(rows) + "</div>";
+    $("guess-result").innerHTML = "<p><b>Benign or malignant? Make your guess!</b></p>";
+  });
+  function guess(choice) {
+    if (game.index === null) { $("guess-result").innerHTML = "<p>Press <b>🧪 New patient</b> first!</p>"; return; }
+    const i = game.index, truth = D.test.truth[i], aiC = testChances[i], aiG = aiC > line ? "M" : "B";
+    game.rounds++; if (choice === truth) game.you++; if (aiG === truth) game.ai++;
+    game.index = null;
+    const names = {M: "MALIGNANT", B: "BENIGN"};
+    $("guess-result").innerHTML = "<p>🧑 You said <b>" + names[choice] + "</b> " + (choice === truth ? "✅" : "❌") + "</p>" +
+      "<p>🤖 AI said <b>" + names[aiG] + "</b> (" + chanceText(aiC) + ", caution line " + line + "%) " + (aiG === truth ? "✅" : "❌") + "</p>" +
+      "<p>🔬 The truth: <b>" + names[truth] + "</b></p><p><i>Press New patient for the next round.</i></p>";
+    $("score-box").innerHTML = scoreText(game);
+  }
+  $("guess-b").addEventListener("click", () => guess("B"));
+  $("guess-m").addEventListener("click", () => guess("M"));
+  $("reset-challenge").addEventListener("click", () => {
+    game = {index: null, you: 0, ai: 0, rounds: 0};
+    $("patient-box").innerHTML = ""; $("guess-result").innerHTML = ""; $("score-box").innerHTML = scoreText(game);
+  });
+
+  // first render
+  update(); dialEffect(); pastView();
+  window.__cellscan = {lrChance, rfChance, rows: D.test.rows};
+})();
+</script>
+</body>
+</html>

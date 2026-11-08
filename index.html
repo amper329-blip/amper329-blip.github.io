@@ -92,6 +92,21 @@ a.subject:hover .s-arrow{transform:translateX(4px)}
 .subject.empty .s-name{color:var(--muted);font-weight:500}
 @media (max-width:760px){.subjects{grid-template-columns:1fr}}
 
+/* projects */
+.project-list{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.project-card{display:flex;flex-direction:column;height:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.project-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.project-card img{width:100%;aspect-ratio:16/10;object-fit:contain;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+.project-card .pc-body{padding:18px 20px 22px;display:grid;gap:8px}
+.project-card h2{margin:0;font-size:1.35rem}
+.project-card p{margin:0;font-family:var(--body);color:var(--ink-2);font-size:.98rem}
+.project-card .pc-link{color:var(--accent);font-weight:600;font-size:.95rem}
+.app-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:4px 0 0}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.app-banner{max-width:760px;margin:28px auto 0;padding:22px 24px;border:1px solid var(--line);border-radius:12px;background:var(--card);display:grid;gap:8px}
+.app-banner h2{margin:0;font-size:1.25rem}
+.app-banner p{margin:0;font-family:var(--body);color:var(--ink-2)}
+
 /* article */
 .article-head{max-width:760px;margin:0 auto}
 .article-head h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:14px 0 14px;font-weight:800}
@@ -144,7 +159,7 @@ tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
-<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html" aria-current="page">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li></ul></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="brand" href="index.html">Curiosity <span>&amp;</span> Learning</a><nav aria-label="Main"><ul><li><a href="index.html" aria-current="page">Home</a></li><li><a href="about.html">About</a></li><li><a href="blog.html">Blog</a></li><li><a href="projects.html">Projects</a></li></ul></nav></div></header>
 <main><section class="hero"><div class="wrap"><div><p class="eyebrow">Welcome to my site</p><h1>Curiosity <em>&amp;</em> Learning</h1><p class="lead">My name is Aaryan Malik, and I’m 13 years old. This website shows a collection of the work I’ve been doing over time, including different ideas, experiments and finished pieces. It brings everything together in one place so you can see what I’ve worked on and the topics I’ve explored. The site acts as a record of my work and how it has developed, showing the range of things I’ve been involved in.</p><p class="lead">On this website, you’ll find work related to a wide range of subjects and interests. These include areas such as philosophy, maths, chemistry, physics, biology, computer science and engineering, as well as other topics I’ve explored along the way. Each section reflects something I’ve been learning about or experimenting with, showing the variety of subjects I’m interested in. Together, they give an overview of the different fields I’ve spent time working on and thinking about.</p><a class="btn" href="blog.html">Explore the blog →</a></div><div class="hero-art"><img src="images/home-curiosity.jpg" alt="A colourful brain surrounded by symbols of science, art, maths and music"></div></div></section></main>
 <footer class="site-foot"><div class="wrap"><span>Curiosity &amp; Learning</span><span>© 2026 Aaryan Malik</span></div></footer>
 </body>
